@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style>
+			.content {
+				width: 600px;
+				height: 400px;
+				background-color: #000;
+				margin: 0px auto;
+			}
+			
+			.cell {
+				width: 18px;
+				height: 18px;
+				/*background-color: #fff;*/
+				margin: 1px;
+				float: left;
+			}
+			
+			.cell-active {
+				background-color: #fff;
+			}
+			
+			.cell-random {
+				background-color: yellow;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="content"></div>
+		<script type="text/javascript" src="js/jquery-2.1.0.js"></script>
+		<script type="text/javascript">
+			Array.prototype.remove = function(index) {
+				for (var i = 0; i < this.length; i++) {
+					var tmp = this[i];
+					if (!isNaN(index)) {
+						tmp = i;
+					}
+					if (tmp == index) {
+						for (var j = i; j < this.length; j++) {
+							this[j] = this[j + 1];
+						}
+						this.length = this.length - 1;
+					}
+				}
+			}
+			$(document).ready(function() {
+				snake = new Array(316, 315, 314, 313);
+				cellStatus = new Array();
+				direction = "none";
+				empty = new Array();
+				for (var i = 0; i < 600; i++) {
+					var div = "<div class='cell'></div>";
+					$(".content").append(div);
+					cellStatus[i] = 0;
+					empty[i] = i;
+				}
+				cells = $(".cell");
+				showSnake();
+				var time = setInterval(function() {
+					var result = true;
+					switch (direction) {
+						case "up":
+							result = up();
+							break;
+						case "down":
+							result = down();
+							break;
+						case "left":
+							result = left();
+							break;
+						case "right":
+							result = right();
+							break;
+					}
+					if(!result){
+						alert("Game Over!");
+						location.reload();
+					}
+				}, 500);
+				$(document).keyup(function(event) {
+					var key = event.keyCode;
+					switch (key) {
+						case 37:
+							if (direction == "right")
+								break;
+							direction = "left";
+							break;
+						case 38:
+							if (direction == "down")
+								break;
+							direction = "up";
+							break;
+						case 39:
+							if (direction == "left")
+								break;
+							direction = "right";
+							break;
+						case 40:
+							if (direction == "up")
+								break;
+							direction = "down";
+							break;
+					}
+				});
+				getRandom();
+			});
+
+			function showSnake() {
+				console.log(snake);
+				for (var i = 0; i < snake.length; i++) {
+					cells.eq(snake[i]).addClass("cell-active");
+					cellStatus[snake[i]] = 1;
+					empty.remove(i);
+				}
+			}
+
+			function up() {
+
+				if (snake[0] >= 0 && snake[0] <= 29)
+					return false;
+				if (cellStatus[snake[0] - 30] == 1)
+					return false;
+				if (cellStatus[snake[0] - 30] == 2) {
+					cellStatus[snake[0] - 30] = 1;
+					cells.eq(snake[0] - 30).removeClass("cell-random");
+					cells.eq(snake[0] - 30).addClass("cell-active");
+					snake.unshift(snake[0] - 30);
+					getRandom();
+					return true;
+				}
+				cellStatus[snake[0] - 30] = 1;
+				cellStatus[snake[snake.length - 1]] = 0;
+				cells.eq(snake[0] - 30).addClass("cell-active");
+				cells.eq(snake[snake.length - 1]).removeClass("cell-active");
+				snake.unshift(snake[0] - 30);
+				snake.pop();
+				return true;
+			}
+
+			function down() {
+
+				if (snake[0] >= 570 && snake[0] <= 599)
+					return false;
+				if (cellStatus[snake[0] + 30] == 1)
+					return false;
+				if (cellStatus[snake[0] + 30] == 2) {
+					cellStatus[snake[0] + 30] = 1;
+					cells.eq(snake[0] + 30).removeClass("cell-random");
+					cells.eq(snake[0] + 30).addClass("cell-active");
+					snake.unshift(snake[0] + 30);
+					getRandom();
+					return true;
+				}
+				cellStatus[snake[0] + 30] = 1;
+				cellStatus[snake[snake.length - 1]] = 0;
+				cells.eq(snake[0] + 30).addClass("cell-active");
+				cells.eq(snake[snake.length - 1]).removeClass("cell-active");
+				snake.unshift(snake[0] + 30);
+				snake.pop();
+				return true;
+			}
+
+			function left() {
+
+				if (snake[0] % 30 == 0)
+					return false;
+				if (cellStatus[snake[0] - 1] == 1)
+					return false;
+				if (cellStatus[snake[0] - 1] == 2) {
+					cellStatus[snake[0] - 1] = 1;
+					cells.eq(snake[0] - 1).removeClass("cell-random");
+					cells.eq(snake[0] - 1).addClass("cell-active");
+					snake.unshift(snake[0] - 1);
+					getRandom();
+					return true;
+				}
+				cellStatus[snake[0] - 1] = 1;
+				cellStatus[snake[snake.length - 1]] = 0;
+				cells.eq(snake[0] - 1).addClass("cell-active");
+				cells.eq(snake[snake.length - 1]).removeClass("cell-active");
+				snake.unshift(snake[0] - 1);
+				snake.pop();
+				return true;
+			}
+
+			function right() {
+				if (snake[0] % 30 == 29)
+					return false;
+				if (cellStatus[snake[0] + 1] == 1)
+					return false;
+				if (snake[0] % 30 == 0)
+					return false;
+				if (cellStatus[snake[0] + 1] == 1)
+					return false;
+				if (cellStatus[snake[0] + 1] == 2) {
+					cellStatus[snake[0] + 1] = 1;
+					cells.eq(snake[0] + 1).removeClass("cell-random");
+					cells.eq(snake[0] + 1).addClass("cell-active");
+					snake.unshift(snake[0] + 1);
+					getRandom();
+					return true;
+				}
+				cellStatus[snake[0] + 1] = 1;
+				cellStatus[snake[snake.length - 1]] = 0;
+				cells.eq(snake[0] + 1).addClass("cell-active");
+				cells.eq(snake[snake.length - 1]).removeClass("cell-active");
+				snake.unshift(snake[0] + 1);
+				snake.pop();
+				return true;
+			}
+
+			function getRandom() {
+				var ran = Math.floor(Math.random() * empty.length);
+				cellStatus[ran] = 2;
+				cells.eq(ran).addClass("cell-random");
+				empty.remove(ran);
+			}
+		</script>
+	</body>
+
+</html>
